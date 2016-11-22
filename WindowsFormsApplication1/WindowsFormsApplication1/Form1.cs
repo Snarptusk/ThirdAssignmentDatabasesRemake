@@ -83,6 +83,9 @@ namespace WindowsFormsApplication1
                     PersonPhone = phoneList
                 };
 
+                people.Add(person);
+                db.Persons.Add(person);
+
                 var adress = new Adress
                 {
                     Home = txtStreetAdress1.Text,
@@ -90,7 +93,10 @@ namespace WindowsFormsApplication1
                     Other = txtStreetAdress3.Text,
                     City = txtCity.Text
                 };
-                
+
+                adressList.Add(adress);
+                db.Adresses.Add(adress);
+
                 var phoneNr = new Phone
                 {
                     Home = txtPhoneNr1.Text,
@@ -98,12 +104,7 @@ namespace WindowsFormsApplication1
                     Other = txtPhoneNr3.Text
                 };
 
-                people.Add(person);
                 phoneList.Add(phoneNr);
-                adressList.Add(adress);
-                
-                db.Persons.Add(person);
-                db.Adresses.Add(adress);
                 db.Phones.Add(phoneNr);
 
                 db.SaveChanges();
@@ -127,26 +128,33 @@ namespace WindowsFormsApplication1
 
         private void cmdDelete_Click(object sender, EventArgs e)
         {
-            using (var db = new PersonContext())
+            try
             {
-                SelectedPerson = (Person)lstContacts.SelectedItem;
+                using (var db = new PersonContext())
+                {
+                    SelectedPerson = (Person)lstContacts.SelectedItem;
+                    var selectedPersonID = SelectedPerson.PersonID;
 
-                var p = db.Persons.FirstOrDefault();
-                SelectedAdress = p.PersonAdress.FirstOrDefault();
-                SelectedPhone = p.PersonPhone.FirstOrDefault();
+                    var p = db.Persons.Find(selectedPersonID);
+                    SelectedAdress = p.PersonAdress.FirstOrDefault();
+                    SelectedPhone = p.PersonPhone.FirstOrDefault();
 
-                var deletedPerson = db.Persons.Find(SelectedPerson.PersonID);
-                var deletedAdress = db.Adresses.Find(SelectedAdress.AdressID);
-                var deletedPhone = db.Phones.Find(SelectedPhone.PhoneID);
+                    var deletedPerson = db.Persons.Find(SelectedPerson.PersonID);
+                    var deletedAdress = db.Adresses.Find(SelectedAdress.AdressID);
+                    var deletedPhone = db.Phones.Find(SelectedPhone.PhoneID);
 
-                db.Persons.Remove(deletedPerson);
-                db.Adresses.Remove(deletedAdress);
-                db.Phones.Remove(deletedPhone);
+                    db.Persons.Remove(deletedPerson);
+                    db.Adresses.Remove(deletedAdress);
+                    db.Phones.Remove(deletedPhone);
 
-                db.SaveChanges();
+                    db.SaveChanges();
 
-                lstContacts.Items.Remove(SelectedPerson.Name);
+                    lstContacts.Items.Remove(SelectedPerson.Name);
+                }
             }
+
+            catch { }
+
             LoadContacts();
         }
 
@@ -155,14 +163,13 @@ namespace WindowsFormsApplication1
             using (var db = new PersonContext())
             {
                 SelectedPerson = (Person)lstContacts.SelectedItem;
-
                 var selectedPersonID = SelectedPerson.PersonID;
 
                 //var selectedAdress = SelectedPerson.PersonAdress;
 
                 //var selectedPhone = SelectedPerson.PersonPhone;
 
-                var p = db.Persons.FirstOrDefault();
+                var p = db.Persons.Find(selectedPersonID);
                 SelectedAdress = p.PersonAdress.FirstOrDefault();
                 SelectedPhone = p.PersonPhone.FirstOrDefault();
 
